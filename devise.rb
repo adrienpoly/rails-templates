@@ -76,7 +76,8 @@ end
 ########################################
 run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
-run 'curl -L https://github.com/lewagon/stylesheets/archive/master.zip > stylesheets.zip'
+# run 'curl -L https://github.com/lewagon/stylesheets/archive/master.zip > stylesheets.zip'
+run 'curl -L https://github.com/rodloboz/stylesheets/archive/master.zip > stylesheets.zip'
 run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-master app/assets/stylesheets'
 
 run 'curl -L https://github.com/adrienpoly/rails-templates/archives/css/material-kit.zip > material-kit.zip'
@@ -123,20 +124,10 @@ file 'app/views/layouts/application.html.erb', <<-HTML
 HTML
 
 run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_flashes.html.erb > app/views/shared/_flashes.html.erb'
+run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_footer.html.erb > app/views/shared/_footer.html.erb'
+run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_navbar.html.erb > app/views/shared/_navbar.html.erb'
+run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_dropdown.html.erb > app/views/shared/_dropdown.html.erb'
 
-file 'app/views/shared/_flashes.html.erb', <<-HTML
-
-HTML
-
-file 'app/views/shared/_footer.html.erb', <<-HTML
-
-HTML
-
-file 'app/views/shared/_navbar.html.erb', <<-HTML
-
-HTML
-
-file 'app/views/shared/_dropdown.html.erb', <<-HTML
 
 HTML
 # README
@@ -166,6 +157,16 @@ after_bundle do
   rake 'db:drop db:create db:migrate'
   generate('simple_form:install', '--bootstrap')
   generate(:controller, 'pages', 'home', '--skip-routes')
+
+  run 'spring binstub --all'
+
+  # Guard initialize
+  ########################################
+  run 'guard init'
+
+  inject_into_file 'config/spring.rb', before: ').each { |path| Spring.watch(path) }' do
+  '  config/application.yml\n'
+  end
 
   # RSPEC
   ########################################
