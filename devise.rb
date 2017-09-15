@@ -14,6 +14,7 @@ gem 'pg'
 gem 'puma'
 gem 'rails', '#{Rails.version}'
 gem 'redis'
+gem 'webpacker'
 
 gem 'autoprefixer-rails'
 gem 'bootstrap-sass'
@@ -29,8 +30,30 @@ group :development, :test do
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '~> 3.0.5'
   gem 'spring'
+  gem 'spring-commands-rspec'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'rspec-rails', '~> 3.6'
+  gem 'capybara'
+  gem 'capybara-webkit'
+  gem 'guard-rspec'
+  gem 'guard-rubocop'
+  gem 'rails-erd'
+  gem 'rubocop', require: false
 end
+
+group :test do
+  gem 'factory_girl_rails', '~> 4.0'
+  gem 'shoulda-matchers', '~> 3.1'
+  gem 'faker'
+  gem 'rails-controller-testing'
+  gem 'database_cleaner'
+end
+
+group :development do
+  gem 'web-console'
+  gem 'annotate'
+end
+
 RUBY
 
 # Ruby version
@@ -55,6 +78,12 @@ run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
 run 'curl -L https://github.com/lewagon/stylesheets/archive/master.zip > stylesheets.zip'
 run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-master app/assets/stylesheets'
+
+run 'curl -L https://github.com/adrienpoly/rails-templates/archives/css/material-kit.zip > material-kit.zip'
+run 'unzip material-kit.zip -d app/assets && rm stylesheets.zip && mv app/assets/material-kit app/assets/stylesheets'
+
+run 'curl -L https://github.com/adrienpoly/rails-templates/archives/js/material-kit.zip > material-kit.zip'
+run 'unzip material-kit.zip -d app/assets && rm stylesheets.zip && mv app/assets/material-kit app/assets/js'
 
 run 'rm app/assets/javascripts/application.js'
 file 'app/assets/javascripts/application.js', <<-JS
@@ -86,29 +115,30 @@ file 'app/views/layouts/application.html.erb', <<-HTML
     <%= render 'shared/navbar' %>
     <%= render 'shared/flashes' %>
     <%= yield %>
+    <%= render 'shared/footer' %>
     <%= javascript_include_tag 'application' %>
+    <%= yield(:after_js) %>
   </body>
 </html>
 HTML
 
+run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_flashes.html.erb > app/views/shared/_flashes.html.erb'
+
 file 'app/views/shared/_flashes.html.erb', <<-HTML
-<% if notice %>
-  <div class="alert alert-info alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <%= notice %>
-  </div>
-<% end %>
-<% if alert %>
-  <div class="alert alert-warning alert-dismissible" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <%= alert %>
-  </div>
-<% end %>
+
 HTML
 
-run 'curl -L https://raw.githubusercontent.com/lewagon/awesome-navbars/master/templates/_navbar_wagon.html.erb > app/views/shared/_navbar.html.erb'
-run 'curl -L https://raw.githubusercontent.com/lewagon/rails-templates/master/logo.png > app/assets/images/logo.png'
+file 'app/views/shared/_footer.html.erb', <<-HTML
 
+HTML
+
+file 'app/views/shared/_navbar.html.erb', <<-HTML
+
+HTML
+
+file 'app/views/shared/_dropdown.html.erb', <<-HTML
+
+HTML
 # README
 ########################################
 markdown_file_content = <<-MARKDOWN
@@ -137,6 +167,16 @@ after_bundle do
   generate('simple_form:install', '--bootstrap')
   generate(:controller, 'pages', 'home', '--skip-routes')
 
+  # RSPEC
+  ########################################
+  generate('rspec:install')
+  run 'mkdir spec/factories'
+
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/spec_helper.rb > spec/spec_helper.rb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories_spec.rb > spec/factories_spec.rb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories/user.rb > spec/factories/user.rb'
+
+
   # Routes
   ########################################
   route "root to: 'pages#home'"
@@ -145,14 +185,18 @@ after_bundle do
   ########################################
   run 'rm .gitignore'
   file '.gitignore', <<-TXT
-.bundle
-log/*.log
-tmp/**/*
-tmp/*
-*.swp
-.DS_Store
-public/assets
-TXT
+    .bundle
+    log/*.log
+    tmp/**/*
+    tmp/*
+    *.swp
+    .DS_Store
+    public/assets
+  TXT
+
+  # Annotate
+  ########################################
+  generate('annotate:install')
 
   # Devise install + user
   ########################################
@@ -163,28 +207,43 @@ TXT
   ########################################
   run 'rm app/controllers/application_controller.rb'
   file 'app/controllers/application_controller.rb', <<-RUBY
-class ApplicationController < ActionController::Base
-  protect_from_forgery with: :exception
-  before_action :authenticate_user!
-end
-RUBY
+  class ApplicationController < ActionController::Base
+    protect_from_forgery with: :exception
+    before_action :authenticate_user!
+    layout :layout_by_resource
+    private
+    def layout_by_resource
+      if devise_controller? && action_name != "edit"
+        "authentication"
+      else
+        "application"
+      end
+    end
+  end
+  RUBY
 
   # migrate + devise views
   ########################################
   rake 'db:migrate'
   generate('devise:views')
 
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/devise-views/new_session.html.erb > app/views/devise/sessions/new.html.erb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/devise-views/new_registration.html.erb > app/views/devise/registrations/new.html.erb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/devise-views/edit_registration.html.erb > app/views/devise/registrations/edit.html.erb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/devise-views/new_password.html.erb > app/views/devise/passwords/new.html.erb'
+
+
   # Pages Controller
   ########################################
   run 'rm app/controllers/pages_controller.rb'
   file 'app/controllers/pages_controller.rb', <<-RUBY
-class PagesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:home]
+  class PagesController < ApplicationController
+    skip_before_action :authenticate_user!, only: [:home]
 
-  def home
+    def home
+    end
   end
-end
-RUBY
+  RUBY
 
   # Environments
   ########################################

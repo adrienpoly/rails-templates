@@ -1,0 +1,56 @@
+<nav class="navbar  navbar-fixed-top navbar-color-on-scroll navbar-darkblue">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+
+
+    <div class="navbar-flex-wrapper">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <%= link_to root_path, class: "navbar-brand text-x-large" do %>
+          <i class="fa fa-line-chart white-space hidden-xs"></i> <span>YOUR LOGO</span>
+        <% end %>
+
+      </div>
+      <div class="collapse navbar-collapse" id="navigation-example">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="/#how_it_works">
+            How it works
+            </a>
+          </li>
+          <li>
+            <a href="/#features">
+            Features
+            </a>
+          </li>
+          <li>
+            <a href="/#demo">
+            Demo
+            </a>
+          </li>
+          <li class="text-center">
+            <a href="#" target="_blank" class="btn btn-simple btn-white btn-just-icon display-inline-block">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" target="_blank" class="btn btn-simple btn-white btn-just-icon display-inline-block">
+              <i class="fa fa-facebook-square"></i>
+            </a>
+          </li>
+        </ul>
+
+      </div>
+      <div class="navbar-user">
+        <% if user_signed_in? %>
+          <%= render 'shared/dropdown' %>
+        <% else %>
+          <%= link_to t(".sign_in", default: "Login"), new_user_session_path, class: "btn btn-success btn-sm" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>
