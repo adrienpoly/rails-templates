@@ -76,14 +76,8 @@ end
 run 'rm -rf app/assets/stylesheets'
 run 'rm -rf vendor'
 # run 'curl -L https://github.com/lewagon/stylesheets/archive/master.zip > stylesheets.zip'
-run 'curl -L https://github.com/rodloboz/stylesheets/archive/master.zip > stylesheets.zip'
-run 'unzip stylesheets.zip -d app/assets && rm stylesheets.zip && mv app/assets/rails-stylesheets-master app/assets/stylesheets'
-
-run 'curl -L https://github.com/adrienpoly/rails-templates/archives/css/material-kit.zip > material-kit.zip'
-run 'unzip material-kit.zip -d app/assets && rm stylesheets.zip && mv app/assets/material-kit app/assets/stylesheets'
-
-run 'curl -L https://github.com/adrienpoly/rails-templates/archives/js/material-kit.zip > material-kit.zip'
-run 'unzip material-kit.zip -d app/assets && rm stylesheets.zip && mv app/assets/material-kit app/assets/js'
+run 'curl -L https://github.com/adrienpoly/stylesheets/archive/master.zip > stylesheets.zip'
+run 'unzip stylesheets.zip -d app && rm stylesheets.zip && mv app/stylesheets-master app/assets'
 
 run 'rm app/assets/javascripts/application.js'
 file 'app/assets/javascripts/application.js', <<-JS
@@ -122,6 +116,7 @@ file 'app/views/layouts/application.html.erb', <<-HTML
 </html>
 HTML
 
+run 'mkdir app/views/shared'
 run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_flashes.html.erb > app/views/shared/_flashes.html.erb'
 run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_footer.html.erb > app/views/shared/_footer.html.erb'
 run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_navbar.html.erb > app/views/shared/_navbar.html.erb'
