@@ -159,6 +159,9 @@ after_bundle do
 
   gsub_file('guardfile', 'guard :rspec, cmd: "bundle exec rspec" do', 'guard :rspec, cmd: "bin/rspec", all_on_start: true do')
 
+  gsub_file('guardfile', 'guard :rubocop do', 'guard :rubocop, all_on_start: false, cli: ["--auto-correct", "--rails"] do')
+
+
   # RSPEC
   ########################################
   generate('rspec:install')
