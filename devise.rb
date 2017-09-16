@@ -159,8 +159,6 @@ after_bundle do
 
   gsub_file('guardfile', 'guard :rspec, cmd: "bundle exec rspec" do', 'guard :rspec, cmd: "bin/rspec", all_on_start: true do')
 
-  guard :rspec, cmd: "bundle exec rspec" do
-
   # RSPEC
   ########################################
   generate('rspec:install')
@@ -224,8 +222,11 @@ after_bundle do
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_action :authenticate_user!
+
   layout :layout_by_resource
+
   private
+
   def layout_by_resource
     if devise_controller? && action_name != "edit"
       "authentication"
@@ -254,7 +255,8 @@ end
 class PagesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:home]
 
-  def home; end
+  def home
+  end
 end
   RUBY
 
