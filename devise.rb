@@ -174,11 +174,13 @@ after_bundle do
   run 'mkdir spec/support'
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/support/controller_helpers.rb > spec/support/controller_helpers.rb'
 
-  inject_into_file 'spec/rails_helper.rb', after: 'config.filter_rails_from_backtrace!' do
-    'config.include FactoryGirl::Syntax::Methods\n'
-    'config.include Devise::TestHelpers, type: :controller\n'
-    'config.include Warden::Test::Helpers\n'
-  end
+  # inject_into_file 'spec/rails_helper.rb', after: 'config.filter_rails_from_backtrace!' do
+  #   '/n'
+  #   'config.include FactoryGirl::Syntax::Methods\n'
+  #   'config.include Devise::TestHelpers, type: :controller\n'
+  #   'config.include Warden::Test::Helpers\n'
+  # end
+
 
   # Routes
   ########################################
