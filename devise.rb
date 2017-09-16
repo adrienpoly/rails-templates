@@ -123,7 +123,6 @@ run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master
 run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/views/shared/_dropdown.html.erb > app/views/shared/_dropdown.html.erb'
 
 
-HTML
 # README
 ########################################
 markdown_file_content = <<-MARKDOWN
@@ -158,9 +157,9 @@ after_bundle do
   ########################################
   run 'guard init'
 
-  inject_into_file 'config/spring.rb', before: ').each { |path| Spring.watch(path) }' do
-  '  config/application.yml\n'
-  end
+  gsub_file('guardfile', 'guard :rspec, cmd: "bundle exec rspec" do', 'guard :rspec, cmd: "bin/rspec", all_on_start: true do')
+
+  guard :rspec, cmd: "bundle exec rspec" do
 
   # RSPEC
   ########################################
@@ -171,6 +170,26 @@ after_bundle do
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories_spec.rb > spec/factories_spec.rb'
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories/user.rb > spec/factories/user.rb'
 
+  file 'spec/support/controller_helpers.rb', <<-RUBY
+  module ControllerHelpers
+    def login_with(user = double('user'), scope = :user)
+      current_user = "current_#{scope}".to_sym
+      if user.nil?
+        allow(request.env['warden']).to receive(:authenticate!).and_throw(:warden, {:scope => scope})
+        allow(controller).to receive(current_user).and_return(nil)
+      else
+        allow(request.env['warden']).to receive(:authenticate!).and_return(user)
+        allow(controller).to receive(current_user).and_return(user)
+      end
+    end
+  end
+  RUBY
+
+  inject_into_file 'spec/ails_help.rb', after: 'config.filter_rails_from_backtrace!' do
+    config.include FactoryGirl::Syntax::Methods
+    config.include Devise::TestHelpers, type: :controller
+    config.include Warden::Test::Helpers
+  end
 
   # Routes
   ########################################
@@ -202,19 +221,19 @@ after_bundle do
   ########################################
   run 'rm app/controllers/application_controller.rb'
   file 'app/controllers/application_controller.rb', <<-RUBY
-  class ApplicationController < ActionController::Base
-    protect_from_forgery with: :exception
-    before_action :authenticate_user!
-    layout :layout_by_resource
-    private
-    def layout_by_resource
-      if devise_controller? && action_name != "edit"
-        "authentication"
-      else
-        "application"
-      end
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+  before_action :authenticate_user!
+  layout :layout_by_resource
+  private
+  def layout_by_resource
+    if devise_controller? && action_name != "edit"
+      "authentication"
+    else
+      "application"
     end
   end
+end
   RUBY
 
   # migrate + devise views
@@ -232,12 +251,11 @@ after_bundle do
   ########################################
   run 'rm app/controllers/pages_controller.rb'
   file 'app/controllers/pages_controller.rb', <<-RUBY
-  class PagesController < ApplicationController
-    skip_before_action :authenticate_user!, only: [:home]
+class PagesController < ApplicationController
+  skip_before_action :authenticate_user!, only: [:home]
 
-    def home
-    end
-  end
+  def home; end
+end
   RUBY
 
   # Environments
@@ -249,6 +267,11 @@ after_bundle do
   ########################################
   run 'bundle binstubs figaro'
   run 'figaro install'
+
+  # Rubocop
+  ########################################
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/.rubocop.yml > .rubocop.yml'
+  run 'rubocop --auto-correct'
 
   # Git
   ########################################
