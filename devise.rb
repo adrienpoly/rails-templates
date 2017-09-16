@@ -184,7 +184,7 @@ after_bundle do
   end
   RUBY
 
-  inject_into_file 'spec/ails_help.rb', after: 'config.filter_rails_from_backtrace!' do
+  inject_into_file 'spec/rails_helper.rb', after: 'config.filter_rails_from_backtrace!' do
     config.include FactoryGirl::Syntax::Methods
     config.include Devise::TestHelpers, type: :controller
     config.include Warden::Test::Helpers
