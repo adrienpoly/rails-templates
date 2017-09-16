@@ -168,6 +168,7 @@ after_bundle do
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories_spec.rb > spec/factories_spec.rb'
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories/user.rb > spec/factories/user.rb'
 
+  run 'mkdir spec/support'
   file 'spec/support/controller_helpers.rb', <<-RUBY
   module ControllerHelpers
     def login_with(user = double('user'), scope = :user)
