@@ -169,20 +169,7 @@ after_bundle do
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories/user.rb > spec/factories/user.rb'
 
   run 'mkdir spec/support'
-  file 'spec/support/controller_helpers.rb', <<-RUBY
-  module ControllerHelpers
-    def login_with(user = double('user'), scope = :user)
-      current_user = "current_#{scope}".to_sym
-      if user.nil?
-        allow(request.env['warden']).to receive(:authenticate!).and_throw(:warden, {:scope => scope})
-        allow(controller).to receive(current_user).and_return(nil)
-      else
-        allow(request.env['warden']).to receive(:authenticate!).and_return(user)
-        allow(controller).to receive(current_user).and_return(user)
-      end
-    end
-  end
-  RUBY
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/support/controller_helpers.rb > spec/support/controller_helpers.rb'
 
   inject_into_file 'spec/rails_helper.rb', after: 'config.filter_rails_from_backtrace!' do
     config.include FactoryGirl::Syntax::Methods
