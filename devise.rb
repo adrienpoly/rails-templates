@@ -27,7 +27,6 @@ gem 'uglifier'
 group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
-  gem 'web-console', '>= 3.3.0'
   gem 'listen', '~> 3.0.5'
   gem 'spring'
   gem 'spring-commands-rspec'
@@ -50,6 +49,7 @@ group :test do
 end
 
 group :development do
+  gem 'web-console', '>= 3.3.0'
   gem 'annotate'
 end
 
@@ -172,7 +172,7 @@ after_bundle do
   run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/factories/user.rb > spec/factories/user.rb'
 
   run 'mkdir spec/support'
-  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/support/controller_helpers.rb > spec/support/controller_helpers.rb'
+  run 'curl -L https://raw.githubusercontent.com/adrienpoly/rails-templates/master/spec/support/controllers_helpers.rb > spec/support/controllers_helpers.rb'
 
   # inject_into_file 'spec/rails_helper.rb', after: 'config.filter_rails_from_backtrace!' do
   #   '/n'
